@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "683060482333",
+    "project_id": "sri-karthikeya-ca799",
+    "storage_bucket": "sri-karthikeya-ca799.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:683060482333:android:c2f4f0368810f3c79051f4",
+        "android_client_info": {
+          "package_name": "com.example.finance"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "683060482333-f0paao2r8q43amqpts30moo40iaacnal.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.finance",
+            "certificate_hash": "7bbac57439e7ab1669be04e232b6732408a77e49"
+          }
+        },
+        {
+          "client_id": "683060482333-8u0ooul8t7p2gbu42210j045ft75esug.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyADkh_iClF_Fas6kovRR4O4heGGSOmyPb4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "683060482333-8u0ooul8t7p2gbu42210j045ft75esug.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

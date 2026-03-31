@@ -1,0 +1,71 @@
+Create a comprehensive Finance Management iOS Application using Swift and SwiftUI. The app is designed for field agents to track weekly loan collections, customer profiles, and generate detailed reports.
+
+### Tech Stack Requirements:
+- Language: Swift
+- UI Framework: SwiftUI
+- Architecture: MVVM (Model-View-ViewModel)
+- Local Database: SwiftData (preferred) or Core Data (multi-user support via userId)
+- Authentication: Firebase Auth (Email/Password with verification & Google Sign-In)
+- Storage/Backend: Firebase Firestore (for user profile sync)
+- Maps: MapKit or Google Maps iOS SDK (for tagging customer houses)
+- Reporting: CoreXLSX or similar library for advanced Excel generation
+
+### Core Features & Business Logic:
+
+1. Multi-User Data Isolation:
+   - Every entity (Village, Customer, Loan, Payment) must have a `userId` field.
+   - All database queries must filter by the currently logged-in user's UID to ensure privacy and data isolation.
+
+2. Authentication:
+   - Login and Signup screens with modern SwiftUI design.
+   - Support for "Forgot Password" flow.
+   - Google Sign-In integration using Firebase Google Auth.
+   - Email verification required for email-based accounts.
+   - Optional: Integrate FaceID/TouchID for quick re-authentication.
+
+3. Dashboard (Shift Selection):
+   - Welcome header displaying the user's name.
+   - A summary card showing "Total Collection Today" (Sum of all payments made by all customers across all villages for the current date).
+   - Selection of "Collection Day" (Monday-Sunday) and "Shift" (Morning/Evening) using SwiftUI Pickers or custom Cards.
+
+4. Village & Customer Management:
+   - Add/Delete Villages mapped to specific days.
+   - Add Customers within a village with: Name, Phone, Aadhar, Location Description, and C/O Name/ID.
+   - Location Tagging: Ability to capture current GPS coordinates or pick a location manually on a Map view.
+   - Numerical ID (Book No): Automatic generation of a unique ID for each customer.
+   - Customer Search: Filter by name, ID, phone, or C/O ID.
+
+5. Loan & Payment Logic:
+   - Loan Creation: When a customer is added, automatically create a loan with 20% interest (Principal + 20% = Total Payable).
+   - Custom Start Date: Allow choosing the exact date money was disbursed during registration using DatePicker.
+   - Payment Modes: Default to "CASH", but also support "PHONE".
+   - Actions:
+     - "PAY": Record an installment.
+     - "DUE": Mark a missed payment (records 0 amount with type "DUE").
+     - "RENEW": Clear existing balance and start a new loan with a new principal amount.
+   - Atomic Transactions: Recording a payment must update the loan balance in a single database context operation.
+
+6. Customer Profile & Civil Score:
+   - Detailed profile view with active loan status and progress bar.
+   - Civil Score Calculator: Dynamic score (300-900) based on payment history (Regular payments increase score, "DUE" marks decrease it). Status labels: Poor (<600), Good (600-750), Excellent (>750).
+
+7. Weekly Collection Excel Report:
+   - Generate a .xlsx file and allow the user to save it via the iOS Share Sheet (Files/AirDrop).
+   - Layout: Create separate sheets for each day of the week (Sunday, Monday, etc.).
+   - Header: Row 1 has the Day Name (A1). Row 2 has Headers: [ID, C/O, Name, "Village, Phone and Aadhar", Dates...].
+   - Columns: Weekly increments of dates starting from the report start date.
+   - Formatting & Color Coding:
+     - Orange Text (#C55A11): For new loan amounts taken.
+     - Black Text: For regular installments paid.
+     - Red Fill + White Text: For "Due" status.
+     - Purple Text (#7030A0): For remaining previous balance.
+     - Renewal Cell: Multi-line cell showing Purple balance (top) and Orange new amount (bottom).
+   - Totals Summary:
+     - Add a "TOTAL DISBURSED (ORANGE)" row at the bottom summing all new loans for each date column.
+     - Add a "TOTAL COLLECTED (BLACK)" row at the bottom summing all regular payments for each date column.
+
+### Architecture & UI:
+- Follow MVVM pattern utilizing `@StateObject` and `@Published` (or the new `@Observable` macro).
+- Use SwiftUI `NavigationStack` for navigation.
+- UI Style: Modern iOS aesthetic, Blue/Navy gradient backgrounds, large rounded corners (24pt), and SF Pro typography.
+- Ensure smooth UI updates using SwiftUI's reactive data binding.

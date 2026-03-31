@@ -1,0 +1,73 @@
+Create a comprehensive Finance Management Android Application using Kotlin and Jetpack Compose. The app is designed for field agents to track weekly loan collections, customer profiles, and generate detailed reports.
+
+### Tech Stack Requirements:
+- Language: Kotlin
+- UI Framework: Jetpack Compose
+- Dependency Injection: Hilt
+- Local Database: Room (with multi-user support via userId)
+- Authentication: Firebase Auth (Email/Password with verification & Google Sign-In)
+- Storage/Backend: Firebase Firestore (for user profile sync)
+- Maps: Google Maps Compose & Play Services Location (for tagging customer houses)
+- Reporting: Apache POI (for advanced Excel generation)
+
+### Core Features & Business Logic:
+
+1. Multi-User Data Isolation:
+   - Every entity (Village, Customer, Loan, Payment) must have a `userId` field.
+   - All database queries must filter by the currently logged-in user's UID to ensure privacy and data isolation.
+
+2. Authentication:
+   - Login and Signup screens.
+   - Support for "Forgot Password" flow.
+   - Google Sign-In integration using Credential Manager / One Tap.
+   - Email verification required for email-based accounts.
+
+3. Dashboard (Shift Selection):
+   - Welcome header displaying the user's name.
+   - A summary card showing "Total Collection Today" (Sum of all payments made by all customers across all villages for the current date).
+   - Selection of "Collection Day" (Monday-Sunday) and "Shift" (Morning/Evening).
+
+4. Village & Customer Management:
+   - Add/Delete Villages mapped to specific days AND specific shifts (Morning/Evening).
+   - Add Customers within a village with: Name, Phone, Aadhar, Location Description, and C/O Name/ID.
+   - Location Tagging: Ability to capture current GPS coordinates or pick a location manually on a Google Map.
+   - Numerical ID (Book No): Automatic generation of a unique ID for each customer. IDs must reset to 1 for every unique combination of Day and Shift.
+   - Customer Search: Filter by name, ID, phone, or C/O ID.
+
+5. Loan & Payment Logic:
+   - Loan Creation: When a customer is added, automatically create a loan with 20% interest (Principal + 20% = Total Payable).
+   - Custom Start Date: Allow choosing the exact date money was disbursed during registration. Date picker must restrict selections to only the day matching the current shift (e.g., only Mondays if in a Monday shift).
+   - Payment Modes: Default to "CASH", but also support "PHONE".
+   - Actions:
+     - "PAY": Record an installment.
+     - "DUE": Mark a missed payment (records 0 amount with type "DUE").
+     - "RENEW": Clear existing balance and start a new loan with a new principal amount and a customizable renewal date.
+   - Atomic Transactions: Recording a payment must update the loan balance in a single database transaction.
+
+6. Customer Profile & Civil Score:
+   - Detailed profile view with active loan status and progress bar.
+   - Civil Score Calculator: Dynamic score (300-900) based on payment history (Regular payments increase score, "DUE" marks decrease it). Status labels: Poor (<600), Good (600-750), Excellent (>750).
+
+7. Weekly Collection Excel Report:
+   - Generate a .xlsx file saved to the public Downloads folder.
+   - Layout: Create separate sheets for each day of the week, strictly ordered (Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday).
+   - Header Formatting:
+     - Row 1: Cell A1 contains the Day Name (e.g., "Sunday") in **Bold**.
+     - Row 2: Column Headers [ID, C/O, Name, "Village, Phone and Aadhar", Weekly Dates...] in **Bold**.
+   - Columns: Weekly increments of dates starting from the report start date.
+   - Automatic "Due" Identification: Logic must automatically check every week a loan was active; if no payment is found, the cell must be marked "Due" with a Red Fill and White Text.
+   - Formatting & Color Coding:
+     - Orange Text (#C55A11): For new loan amounts taken.
+     - Black Text: For regular installments paid.
+     - Red Fill + White Text: For "Due" status.
+     - Purple Text (#7030A0): For remaining previous balance.
+     - Renewal Cell: Multi-line cell (Alt+Enter) showing Purple balance (top) and Orange new amount (bottom).
+   - Totals Summary at the bottom of each sheet:
+     - "TOTAL DISBURSED (ORANGE)": Sum of all new loans for the column, but with a **2% reduction applied** (deduct 2Rs for every 100Rs).
+     - "TOTAL COLLECTED (BLACK)": Sum of all regular payments for the column.
+
+### Architecture & UI:
+- Follow MVVM pattern with Clean Architecture principles.
+- Use a single `NavHost` with a sealed class for Screen routes.
+- UI Style: Modern Material 3, Blue/Navy gradient backgrounds, rounded cards (24dp), and high-contrast typography.
+- Ensure "Blink-free" UI by utilizing SavedStateHandle in ViewModels and reactive Room Flows.

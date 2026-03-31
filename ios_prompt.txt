@@ -1,71 +1,71 @@
-Create a comprehensive Finance Management iOS Application using Swift and SwiftUI. The app is designed for field agents to track weekly loan collections, customer profiles, and generate detailed reports.
+Create a comprehensive Finance Management Cross-Platform Application using React Native and Expo. This app must be developed on Windows but target both iOS and Android. It is designed for field agents to track weekly loan collections, customer profiles, and generate detailed reports.
 
-### Tech Stack Requirements:
-- Language: Swift
-- UI Framework: SwiftUI
-- Architecture: MVVM (Model-View-ViewModel)
-- Local Database: SwiftData (preferred) or Core Data (multi-user support via userId)
+### Tech Stack Requirements (Windows Compatible):
+- Framework: Expo (React Native)
+- Language: TypeScript
+- Navigation: Expo Router or React Navigation
+- State Management: Redux Toolkit or Zustand (for reactive, blink-free UI)
+- Local Database: Expo SQLite or WatermelonDB (Must support multi-user via userId)
 - Authentication: Firebase Auth (Email/Password with verification & Google Sign-In)
 - Storage/Backend: Firebase Firestore (for user profile sync)
-- Maps: MapKit or Google Maps iOS SDK (for tagging customer houses)
-- Reporting: CoreXLSX or similar library for advanced Excel generation
+- Maps: react-native-maps (for tagging customer houses)
+- Reporting: expo-spreadsheet or a specialized library like exceljs (to support complex Excel formatting and multi-color rich text)
 
 ### Core Features & Business Logic:
 
 1. Multi-User Data Isolation:
    - Every entity (Village, Customer, Loan, Payment) must have a `userId` field.
-   - All database queries must filter by the currently logged-in user's UID to ensure privacy and data isolation.
+   - All database queries must filter by the currently logged-in user's UID.
 
 2. Authentication:
-   - Login and Signup screens with modern SwiftUI design.
+   - Login and Signup screens with modern design.
    - Support for "Forgot Password" flow.
-   - Google Sign-In integration using Firebase Google Auth.
-   - Email verification required for email-based accounts.
-   - Optional: Integrate FaceID/TouchID for quick re-authentication.
+   - Google Sign-In integration (using expo-auth-session).
+   - Email verification required for email accounts.
 
 3. Dashboard (Shift Selection):
-   - Welcome header displaying the user's name.
-   - A summary card showing "Total Collection Today" (Sum of all payments made by all customers across all villages for the current date).
-   - Selection of "Collection Day" (Monday-Sunday) and "Shift" (Morning/Evening) using SwiftUI Pickers or custom Cards.
+   - Welcome header with user's name.
+   - Summary card: "Total Collection Today" (Sum of all payments received today across all villages).
+   - Selection of "Collection Day" (Monday-Sunday) and "Shift" (Morning/Evening).
 
 4. Village & Customer Management:
-   - Add/Delete Villages mapped to specific days.
-   - Add Customers within a village with: Name, Phone, Aadhar, Location Description, and C/O Name/ID.
-   - Location Tagging: Ability to capture current GPS coordinates or pick a location manually on a Map view.
-   - Numerical ID (Book No): Automatic generation of a unique ID for each customer.
-   - Customer Search: Filter by name, ID, phone, or C/O ID.
+   - Add/Delete Villages mapped to specific days AND specific shifts.
+   - Add Customers with: Name, Phone, Aadhar, Location Description, and C/O Name/ID.
+   - Location Tagging: Capture current GPS or manual pin drop on a map.
+   - Numerical ID (Book No): Must start at 1 for every unique combination of Day + Shift.
+   - Search: Filter by name, ID, phone, or C/O ID.
 
 5. Loan & Payment Logic:
-   - Loan Creation: When a customer is added, automatically create a loan with 20% interest (Principal + 20% = Total Payable).
-   - Custom Start Date: Allow choosing the exact date money was disbursed during registration using DatePicker.
-   - Payment Modes: Default to "CASH", but also support "PHONE".
+   - Loan Creation: Auto-create loan with 20% interest (Principal + 20% = Total Payable).
+   - Disbursement Date: Choose date during registration. Date picker MUST restrict selections to only the day matching the current shift (e.g., only Mondays if in a Monday shift).
+   - Payment Modes: Default "CASH", support "PHONE".
    - Actions:
-     - "PAY": Record an installment.
-     - "DUE": Mark a missed payment (records 0 amount with type "DUE").
-     - "RENEW": Clear existing balance and start a new loan with a new principal amount.
-   - Atomic Transactions: Recording a payment must update the loan balance in a single database context operation.
+     - "PAY": Record installment.
+     - "DUE": Mark missed payment (Red fill in reports).
+     - "RENEW": Clear balance and start new loan with a customizable renewal date.
+   - Transactions: Recording a payment must update loan balance atomically.
 
 6. Customer Profile & Civil Score:
-   - Detailed profile view with active loan status and progress bar.
-   - Civil Score Calculator: Dynamic score (300-900) based on payment history (Regular payments increase score, "DUE" marks decrease it). Status labels: Poor (<600), Good (600-750), Excellent (>750).
+   - Detailed profile with progress bar for loan balance.
+   - Civil Score: Dynamic (300-900) based on history. <600 (Poor), 600-750 (Good), >750 (Excellent).
 
-7. Weekly Collection Excel Report:
-   - Generate a .xlsx file and allow the user to save it via the iOS Share Sheet (Files/AirDrop).
-   - Layout: Create separate sheets for each day of the week (Sunday, Monday, etc.).
-   - Header: Row 1 has the Day Name (A1). Row 2 has Headers: [ID, C/O, Name, "Village, Phone and Aadhar", Dates...].
-   - Columns: Weekly increments of dates starting from the report start date.
+7. Weekly Collection Excel Report (Multi-Sheet):
+   - Generate .xlsx file and share using expo-sharing.
+   - Layout: 7 separate sheets ordered Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday.
+   - Header Formatting: Row 1 (Day Name) and Row 2 (Column Headers) must be BOLD.
+   - Cell Alignment: EVERY cell in the sheet must be CENTER-ALIGNED (Horizontal & Vertical).
+   - Date Logic: Dates must be day-specific (e.g., Monday sheet only shows Monday dates).
    - Formatting & Color Coding:
-     - Orange Text (#C55A11): For new loan amounts taken.
-     - Black Text: For regular installments paid.
-     - Red Fill + White Text: For "Due" status.
-     - Purple Text (#7030A0): For remaining previous balance.
-     - Renewal Cell: Multi-line cell showing Purple balance (top) and Orange new amount (bottom).
-   - Totals Summary:
-     - Add a "TOTAL DISBURSED (ORANGE)" row at the bottom summing all new loans for each date column.
-     - Add a "TOTAL COLLECTED (BLACK)" row at the bottom summing all regular payments for each date column.
+     - Orange Text (#C55A11): Loan Disbursement (Shows Total Payable amount).
+     - Black Text: Regular Installments paid.
+     - Red Fill + White Text: Missed payment ("Due").
+     - Purple Text (#7030A0): Remaining previous balance during renewal.
+     - Renewal Cell: Multi-line (Rich Text) showing Purple balance (top) and Orange new amount (bottom).
+   - Totals Summary (at bottom of every sheet):
+     - Line 1: "TOTAL COLLECTED" in Orange text (Sum of installments).
+     - Line 2: "TOTAL DISBURSED" in Red text (Sum of principals minus 2% reduction).
 
 ### Architecture & UI:
-- Follow MVVM pattern utilizing `@StateObject` and `@Published` (or the new `@Observable` macro).
-- Use SwiftUI `NavigationStack` for navigation.
-- UI Style: Modern iOS aesthetic, Blue/Navy gradient backgrounds, large rounded corners (24pt), and SF Pro typography.
-- Ensure smooth UI updates using SwiftUI's reactive data binding.
+- UI Style: Modern Design with Blue/Navy gradients (0xFF1E88E5 to 0xFF0D47A1).
+- Use rounded cards (24dp) and high-contrast typography.
+- Building for iOS: Use Expo Application Services (EAS Build) to build the final .ipa for iOS devices in the cloud, eliminating the need for a local Mac.
